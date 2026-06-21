@@ -31,11 +31,12 @@ while [[ ${SECONDS} -lt ${END} ]] && [[ -n "${DB_HOST+x}" ]]; do
 done
 
 # One time setup
-FLAG_FILE="/var/www/html/storage/installed.flag"
+FLAG_FILE="/app/www/storage/installed.flag"
 if [ ! -f "$FLAG_FILE" ]; then
-    wait_for_db
+    mkdir -p /app/www/storage/{app,fonts,framework,logs,purify}
+    mkdir -p /app/www/storage/framework/{cache/data,sessions,testing,views}
     echo "Running initial Kanka CE installation"
-    php artisan kanka:install
+    php /app/www/artisan kanka:install
     touch "$FLAG_FILE"
     echo "Installation complete"
 fi
@@ -46,4 +47,4 @@ php /app/www/artisan migrate --force
 # permissions
 # TODO use /config here
 lsiown -R abc:abc \
-    /app/www/html/storage
+    /app/www/storage

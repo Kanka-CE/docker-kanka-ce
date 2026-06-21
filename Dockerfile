@@ -18,12 +18,18 @@ RUN \
     mariadb-client \
     memcached \
     php84-bcmath \
-    php84-intl \
+    php84-dom \
+    php84-exif \
     php84-gd \
+    php84-intl \
     php84-mbstring \
     php84-mysqlnd \
-    php84-opcache
+    php84-opcache \
     php84-pdo \
+    php84-pdo_mysql \
+    php84-pecl-memcached \
+    php84-sodium \
+    php84-tokenizer \
     php84-xml \
     php84-zip \
     qt5-qtbase \
@@ -80,4 +86,4 @@ COPY root/ /
 EXPOSE 80 443
 
 # TODO: Mount /config instead and symlink, similiar as it is done by linuxserver.io by default
-VOLUME /var/www/html/storage
+VOLUME /app/www/storage
