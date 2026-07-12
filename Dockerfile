@@ -39,6 +39,10 @@ RUN \
   if ! grep -qxF 'clear_env = no' /etc/php84/php-fpm.d/www.conf; then echo 'clear_env = no' >> /etc/php84/php-fpm.d/www.conf; fi && \
   echo "env[PATH] = /usr/local/bin:/usr/bin:/bin" >> /etc/php84/php-fpm.conf 
 
+RUN \
+  echo "**** install nodejs + npm for vite build ****" && \
+  apk add --no-cache nodejs npm
+
 # TODO: Create releases in the Kanka-Community-Edition repository and directly download them here via curl
 RUN \
   echo "**** fetch Kanka-CE ****" && \
@@ -68,6 +72,14 @@ RUN \
     CODE_OF_CONDUCT.md \
     docker-compose.yml \
     README.md
+
+# Build frontend assets
+RUN \
+  echo "**** install npm dependencies ****" \
+    && cd /app/www \
+    && npm install --legacy-peer-deps \
+    && npm run build \
+    && rm -rf node_modules
 
 RUN \
   echo "**** install composer dependencies ****" && \
