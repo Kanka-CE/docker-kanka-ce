@@ -1,28 +1,5 @@
 # syntax=docker/dockerfile:1
 
-###############################################
-# Stage 1: Node build (Vite / Mix)
-###############################################
-FROM node:20-alpine AS node-build
-
-WORKDIR /app
-
-# Copy only package files first for caching
-COPY Kanka-CE/package.json ./
-
-RUN npm install
-
-# Copy full app
-COPY Kanka-CE/ .
-
-# Build production assets
-RUN npm install vite@6.0.11 @vitejs/plugin-vue@5.2.4
-RUN npm install
-RUN npm run build
-
-###############################################
-# Stage 2: PHP-FPM + Nginx (Linuxserver.io)
-###############################################
 FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.22
 
 # set version label
@@ -62,6 +39,10 @@ RUN \
   if ! grep -qxF 'clear_env = no' /etc/php84/php-fpm.d/www.conf; then echo 'clear_env = no' >> /etc/php84/php-fpm.d/www.conf; fi && \
   echo "env[PATH] = /usr/local/bin:/usr/bin:/bin" >> /etc/php84/php-fpm.conf 
 
+RUN \
+  echo "**** install nodejs + npm for vite build ****" && \
+  apk add --no-cache nodejs npm
+
 # TODO: Create releases in the Kanka-Community-Edition repository and directly download them here via curl
 RUN \
   echo "**** fetch Kanka-CE ****" && \
@@ -93,6 +74,14 @@ RUN \
     README.md
 
 RUN \
+  echo "**** install npm dependencies ****" && \
+  cd /app/www && npm install
+
+RUN \
+  echo "**** build vite production assets ****" && \
+  cd /app/www && npm run build
+
+RUN \
   echo "**** install composer dependencies ****" && \
   composer install -d /app/www/ && \
   printf "Kanka-CE version: ${VERSION}\nBuild-date: ${BUILD_DATE}" > /build_version && \
@@ -101,12 +90,6 @@ RUN \
     /tmp/* \
     $HOME/.cache \
     $HOME/.composer
-
-# Copy built Vite assets from Node stage
-COPY --from=node-build /app/public/build /app/www/public/build
-COPY --from=node-build /app/public/assets /app/www/public/assets
-COPY --from=node-build /app/public/css /app/www/public/css
-COPY --from=node-build /app/public/js /app/www/public/js
 
 # copy local files
 COPY root/ /
