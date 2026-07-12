@@ -73,13 +73,13 @@ RUN \
     docker-compose.yml \
     README.md
 
+# Build frontend assets
 RUN \
-  echo "**** install npm dependencies ****" && \
-  cd /app/www && npm install
-
-RUN \
-  echo "**** build vite production assets ****" && \
-  cd /app/www && npm run build
+  echo "**** install npm dependencies ****" \
+    && cd /app/www \
+    && npm install --legacy-peer-deps \
+    && npm run build \
+    && rm -rf node_modules
 
 RUN \
   echo "**** install composer dependencies ****" && \
