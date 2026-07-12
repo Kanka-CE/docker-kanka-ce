@@ -8,7 +8,7 @@ FROM node:20-alpine AS node-build
 WORKDIR /app
 
 # Copy only package files first for caching
-COPY Kanka-CE/package.json Kanka-CE/package-lock.json ./
+COPY Kanka-CE/package.json ./
 
 RUN npm install
 
