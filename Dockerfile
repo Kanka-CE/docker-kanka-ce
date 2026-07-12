@@ -1,5 +1,26 @@
 # syntax=docker/dockerfile:1
 
+###############################################
+# Stage 1: Node build (Vite / Mix)
+###############################################
+FROM node:20-alpine AS node-build
+
+WORKDIR /app
+
+# Copy only package files first for caching
+COPY Kanka-CE/package.json Kanka-CE/package-lock.json ./
+
+RUN npm install
+
+# Copy full app
+COPY Kanka-CE/ .
+
+# Build production assets
+RUN npm run build
+
+###############################################
+# Stage 2: PHP-FPM + Nginx (Linuxserver.io)
+###############################################
 FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.22
 
 # set version label
@@ -78,6 +99,12 @@ RUN \
     /tmp/* \
     $HOME/.cache \
     $HOME/.composer
+
+# Copy built Vite assets from Node stage
+COPY --from=node-build /app/public/build /app/www/public/build
+COPY --from=node-build /app/public/assets /app/www/public/assets
+COPY --from=node-build /app/public/css /app/www/public/css
+COPY --from=node-build /app/public/js /app/www/public/js
 
 # copy local files
 COPY root/ /
