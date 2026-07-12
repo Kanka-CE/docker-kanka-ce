@@ -16,6 +16,8 @@ RUN npm install
 COPY Kanka-CE/ .
 
 # Build production assets
+RUN npm install vite@6.0.11 @vitejs/plugin-vue@5.2.4
+RUN npm install
 RUN npm run build
 
 ###############################################
