@@ -5,7 +5,7 @@ FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.22
 # set version label
 ARG BUILD_DATE
 ARG VERSION
-ARG NGINX_VERSION
+ARG KANKACE_RELEASE
 LABEL build_version="Kanka-CE version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 LABEL maintainer="kinnewig"
 
@@ -43,35 +43,29 @@ RUN \
   echo "**** install nodejs + npm for vite build ****" && \
   apk add --no-cache nodejs npm
 
-# TODO: Create releases in the Kanka-Community-Edition repository and directly download them here via curl
 RUN \
   echo "**** fetch Kanka-CE ****" && \
-  mkdir -p /app/www 
-COPY Kanka-CE/ /app/www
+  mkdir -p /app/www
+RUN \
+  if [ -z ${KANKACE_RELEASE+x} ]; then \
+    KANKACE_RELEASE=$(curl -sX GET "https://api.github.com/repos/Kanka-CE/kanka-community-edition/releases/latest" \
+    | jq -r '.tag_name'); \
+  fi && \
+  curl -o \
+    /tmp/kanka-ce.tar.gz -L \
+    "https://github.com/Kanka-CE/kanka-community-edition/archive/refs/tags/${KANKACE_RELEASE}.tar.gz" && \
+  tar xf \
+    /tmp/kanka-ce.tar.gz -C \
+    /app/www/ --strip-components=1 && \
+  rm -f \
+    /tmp/kanka-ce.tar.gz
+
 RUN \
   cd /app/www \
-  rm -rf   \
-    .claude  \
-    .git     \
-    .github  \
-    .mariadb \
-    .nginx   \
-    docker   \
-    docs     \
-    public/vendor/fontawesome && \
-  rm -f \
-    .dockerignore      \
-    .editorconfig      \
-    .env.example       \
-    .env.testing       \
-    .gitattributes     \
-    .gitignore         \
-    .jshintrc          \
-    boost.json         \
-    CLAUDE.md          \
-    CODE_OF_CONDUCT.md \
-    docker-compose.yml \
-    README.md
+  rm -rf    \
+    .git    \
+    .github \
+    .dockerignore
 
 # Build frontend assets
 RUN \
