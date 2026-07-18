@@ -1,23 +1,19 @@
 # syntax=docker/dockerfile:1
 
-FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.22
+########################################
+# Stage 1: Build Kanka-CE (composer + npm/vite)
+########################################
+FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.22 AS builder
 
 # set version label
 ARG BUILD_DATE
 ARG VERSION
-ARG KANKACE_RELEASE
-LABEL build_version="Kanka-CE version:- ${VERSION} Build-date:- ${BUILD_DATE}"
-LABEL maintainer="kinnewig"
-
-ENV S6_STAGE2_HOOK="/init-hook"
 
 RUN \
-  echo "**** install runtime packages ****" && \
+  echo "**** install build packages ****" && \
   apk add --no-cache \
-    fontconfig \
-    mariadb-client \
-    memcached \
     php84-bcmath \
+    php84-ctype \
     php84-dom \
     php84-exif \
     php84-gd \
@@ -25,15 +21,17 @@ RUN \
     php84-mbstring \
     php84-mysqlnd \
     php84-opcache \
+    php84-openssl \
     php84-pdo \
     php84-pdo_mysql \
     php84-pecl-memcached \
+    php84-phar \
     php84-sodium \
     php84-tokenizer \
     php84-xml \
-    php84-zip \
-    qt5-qtbase \
-    ttf-freefont && \
+    php84-zip 
+
+RUN \
   echo "**** configure php-fpm to pass env vars ****" && \
   sed -E -i 's/^;?clear_env ?=.*$/clear_env = no/g' /etc/php84/php-fpm.d/www.conf && \
   if ! grep -qxF 'clear_env = no' /etc/php84/php-fpm.d/www.conf; then echo 'clear_env = no' >> /etc/php84/php-fpm.d/www.conf; fi && \
@@ -77,13 +75,64 @@ RUN \
 
 RUN \
   echo "**** install composer dependencies ****" && \
-  composer install -d /app/www/ && \
+  composer install \
+    -d /app/www/ \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction && \
   printf "Kanka-CE version: ${VERSION}\nBuild-date: ${BUILD_DATE}" > /build_version && \
   echo "**** cleanup ****" && \
   rm -rf \
     /tmp/* \
     $HOME/.cache \
     $HOME/.composer
+
+
+
+########################################
+# Stage 2: Runtime image
+########################################
+FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.22
+
+ARG BUILD_DATE
+ARG VERSION
+ARG KANKACE_RELEASE
+LABEL build_version="Kanka-CE version:- ${VERSION} Build-date:- ${BUILD_DATE}"
+LABEL maintainer="kinnewig"
+
+ENV S6_STAGE2_HOOK="/init-hook"
+
+RUN \
+  echo "**** install runtime packages ****" && \
+  apk add --no-cache \
+    fontconfig \
+    mariadb-client \
+    memcached \
+    php84-bcmath \
+    php84-dom \
+    php84-exif \
+    php84-gd \
+    php84-intl \
+    php84-mbstring \
+    php84-mysqlnd \
+    php84-opcache \
+    php84-pdo \
+    php84-pdo_mysql \
+    php84-pecl-memcached \
+    php84-sodium \
+    php84-tokenizer \
+    php84-xml \
+    php84-zip \
+    qt5-qtbase \
+    ttf-freefont && \
+  echo "**** configure php-fpm to pass env vars ****" && \
+  sed -E -i 's/^;?clear_env ?=.*$/clear_env = no/g' /etc/php84/php-fpm.d/www.conf && \
+  if ! grep -qxF 'clear_env = no' /etc/php84/php-fpm.d/www.conf; then echo 'clear_env = no' >> /etc/php84/php-fpm.d/www.conf; fi && \
+  echo "env[PATH] = /usr/local/bin:/usr/bin:/bin" >> /etc/php84/php-fpm.conf
+
+# bring over the fully built app from the builder stage
+COPY --from=builder /app/www /app/www
+COPY --from=builder /build_version /build_version
 
 # copy local files
 COPY root/ /
