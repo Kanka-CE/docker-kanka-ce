@@ -44,19 +44,7 @@ RUN \
 RUN \
   echo "**** fetch Kanka-CE ****" && \
   mkdir -p /app/www
-RUN \
-  if [ -z ${KANKACE_RELEASE+x} ]; then \
-    KANKACE_RELEASE=$(curl -sX GET "https://api.github.com/repos/Kanka-CE/kanka-community-edition/releases/latest" \
-    | jq -r '.tag_name'); \
-  fi && \
-  curl -o \
-    /tmp/kanka-ce.tar.gz -L \
-    "https://github.com/Kanka-CE/kanka-community-edition/archive/refs/tags/${KANKACE_RELEASE}.tar.gz" && \
-  tar xf \
-    /tmp/kanka-ce.tar.gz -C \
-    /app/www/ --strip-components=1 && \
-  rm -f \
-    /tmp/kanka-ce.tar.gz
+COPY kanka-community-edition /app/www
 
 RUN \
   cd /app/www \
