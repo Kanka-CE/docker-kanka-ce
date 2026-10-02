@@ -34,6 +34,14 @@ done
 # One time setup
 FLAG_FILE="/app/www/storage/installed.flag"
 if [ ! -f "$FLAG_FILE" ]; then
+    # During the deploy the server has to be configured to run in `local`!
+    if ! grep -qF "APP_ENV=local" "$ENV_FILE"; then
+        echo "ERROR: For the first-time setup, the server has to be configured to run in local mode."
+        echo "i.e. you need to set APP_ENV=local in the .env file."
+        echo "Only after the first setup has finished, you can set APP_ENV=production and restart the server."
+        exit 1
+    fi
+
     mkdir -p /app/www/storage/{app,fonts,framework,logs,purify}
     mkdir -p /app/www/storage/framework/{cache/data,sessions,testing,views}
     echo "Running initial Kanka CE installation"
