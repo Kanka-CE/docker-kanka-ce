@@ -3,7 +3,8 @@
 ########################################
 # Stage 1: Build Kanka-CE (composer + npm/vite)
 ########################################
-FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.24 AS builder
+<<<<<<< HEAD
+FROM ghcr.io/linuxserver/baseimage-alpine-nginx:arm64v8-3.24 AS builder
 
 # set version label
 ARG BUILD_DATE
@@ -91,7 +92,7 @@ RUN \
 ########################################
 # Stage 2: Runtime image
 ########################################
-FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.24
+FROM ghcr.io/linuxserver/baseimage-alpine-nginx:arm64v8-3.24
 
 ARG BUILD_DATE
 ARG VERSION
