@@ -1,6 +1,6 @@
-# docker-kanka-ce
+# docker-kanka-ce ARM64
 
-The Dockerfile used to build the Kanka Community Edition container image, styled after [linuxserver.io](https://www.linuxserver.io)'s image conventions.
+The Dockerfile used to build the Kanka Community Edition container image for ARM64, styled after [linuxserver.io](https://www.linuxserver.io)'s image conventions.
 
 > **Want to self-host Kanka CE?** You don't need this repo directly — go to
 > **[kanka-ce-deploy](https://github.com/Kanka-CE/kanka-ce-deploy)**, which has the docker-compose file and
