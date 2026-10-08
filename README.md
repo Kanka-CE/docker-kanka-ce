@@ -2,6 +2,7 @@
 
 The Dockerfile used to build the Kanka Community Edition container image, styled after [linuxserver.io](https://www.linuxserver.io)'s image conventions.
 
+> [!Note]
 > **Want to self-host Kanka CE?** You don't need this repo directly — go to
 > **[kanka-ce-deploy](https://github.com/Kanka-CE/kanka-ce-deploy)**, which has the docker-compose file and
 > full Quick Start guide, and references the image this repo builds.
@@ -30,6 +31,7 @@ docker build -t kanka-ce:local .
 |---|---|
 | [kanka-community-edition](https://github.com/Kanka-CE/kanka-community-edition) | The patched source this image is built from |
 | [kanka-ce-container](https://github.com/Kanka-CE/kanka-ce-container) | Self-hosting: docker-compose and `.env` that run this image |
+| [kanka-ce-deploy-quadlets](https://github.com/Kanka-CE/kanka-ce-deploy-quadlets) | Self-hosting: podman quadlets and `.env` that run this image |
 
 
 ## License and Acknowledgements
