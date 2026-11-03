@@ -20,7 +20,6 @@ RUN \
     php85-intl \
     php85-mbstring \
     php85-mysqlnd \
-    php85-opcache \
     php85-openssl \
     php85-pdo \
     php85-pdo_mysql \
@@ -115,7 +114,6 @@ RUN \
     php85-intl \
     php85-mbstring \
     php85-mysqlnd \
-    php85-opcache \
     php85-pdo \
     php85-pdo_mysql \
     php85-pecl-memcached \
