@@ -3,7 +3,7 @@
 ########################################
 # Stage 1: Build Kanka-CE (composer + npm/vite)
 ########################################
-FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.22 AS builder
+FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.24 AS builder
 
 # set version label
 ARG BUILD_DATE
@@ -12,30 +12,29 @@ ARG VERSION
 RUN \
   echo "**** install build packages ****" && \
   apk add --no-cache \
-    php84-bcmath \
-    php84-ctype \
-    php84-dom \
-    php84-exif \
-    php84-gd \
-    php84-intl \
-    php84-mbstring \
-    php84-mysqlnd \
-    php84-opcache \
-    php84-openssl \
-    php84-pdo \
-    php84-pdo_mysql \
-    php84-pecl-memcached \
-    php84-phar \
-    php84-sodium \
-    php84-tokenizer \
-    php84-xml \
-    php84-zip 
+    php85-bcmath \
+    php85-ctype \
+    php85-dom \
+    php85-exif \
+    php85-gd \
+    php85-intl \
+    php85-mbstring \
+    php85-mysqlnd \
+    php85-openssl \
+    php85-pdo \
+    php85-pdo_mysql \
+    php85-pecl-memcached \
+    php85-phar \
+    php85-sodium \
+    php85-tokenizer \
+    php85-xml \
+    php85-zip 
 
 RUN \
   echo "**** configure php-fpm to pass env vars ****" && \
-  sed -E -i 's/^;?clear_env ?=.*$/clear_env = no/g' /etc/php84/php-fpm.d/www.conf && \
-  if ! grep -qxF 'clear_env = no' /etc/php84/php-fpm.d/www.conf; then echo 'clear_env = no' >> /etc/php84/php-fpm.d/www.conf; fi && \
-  echo "env[PATH] = /usr/local/bin:/usr/bin:/bin" >> /etc/php84/php-fpm.conf 
+  sed -E -i 's/^;?clear_env ?=.*$/clear_env = no/g' /etc/php85/php-fpm.d/www.conf && \
+  if ! grep -qxF 'clear_env = no' /etc/php85/php-fpm.d/www.conf; then echo 'clear_env = no' >> /etc/php85/php-fpm.d/www.conf; fi && \
+  echo "env[PATH] = /usr/local/bin:/usr/bin:/bin" >> /etc/php85/php-fpm.conf 
 
 RUN \
   echo "**** install nodejs + npm for vite build ****" && \
@@ -92,7 +91,7 @@ RUN \
 ########################################
 # Stage 2: Runtime image
 ########################################
-FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.22
+FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.24
 
 ARG BUILD_DATE
 ARG VERSION
@@ -108,27 +107,26 @@ RUN \
     fontconfig \
     mariadb-client \
     memcached \
-    php84-bcmath \
-    php84-dom \
-    php84-exif \
-    php84-gd \
-    php84-intl \
-    php84-mbstring \
-    php84-mysqlnd \
-    php84-opcache \
-    php84-pdo \
-    php84-pdo_mysql \
-    php84-pecl-memcached \
-    php84-sodium \
-    php84-tokenizer \
-    php84-xml \
-    php84-zip \
+    php85-bcmath \
+    php85-dom \
+    php85-exif \
+    php85-gd \
+    php85-intl \
+    php85-mbstring \
+    php85-mysqlnd \
+    php85-pdo \
+    php85-pdo_mysql \
+    php85-pecl-memcached \
+    php85-sodium \
+    php85-tokenizer \
+    php85-xml \
+    php85-zip \
     qt5-qtbase \
     ttf-freefont && \
   echo "**** configure php-fpm to pass env vars ****" && \
-  sed -E -i 's/^;?clear_env ?=.*$/clear_env = no/g' /etc/php84/php-fpm.d/www.conf && \
-  if ! grep -qxF 'clear_env = no' /etc/php84/php-fpm.d/www.conf; then echo 'clear_env = no' >> /etc/php84/php-fpm.d/www.conf; fi && \
-  echo "env[PATH] = /usr/local/bin:/usr/bin:/bin" >> /etc/php84/php-fpm.conf
+  sed -E -i 's/^;?clear_env ?=.*$/clear_env = no/g' /etc/php85/php-fpm.d/www.conf && \
+  if ! grep -qxF 'clear_env = no' /etc/php85/php-fpm.d/www.conf; then echo 'clear_env = no' >> /etc/php85/php-fpm.d/www.conf; fi && \
+  echo "env[PATH] = /usr/local/bin:/usr/bin:/bin" >> /etc/php85/php-fpm.conf
 
 # bring over the fully built app from the builder stage
 COPY --from=builder /app/www /app/www
